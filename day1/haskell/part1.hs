@@ -10,4 +10,4 @@ parseLine ('R':rest) = read rest
 parseLine _          = error "Invalid input"
 
 applyMove :: Int -> Int -> Int
-applyMove pos delta = (pos + delta + 100) `mod` 100
+applyMove pos delta = (pos + delta) `mod` 100

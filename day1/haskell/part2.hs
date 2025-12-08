@@ -5,7 +5,7 @@ main :: IO ()
 main = do
     input <- getContents
     let twists = map parseLine $ lines input
-    let states = scanl applyMoveCountZeros (50, 0) twists
+    let states = foldl applyMoveCountZeros (50, 0) twists
     print states
 
 parseLine :: String -> Int
@@ -18,12 +18,9 @@ applyMoveCountZeros (pos, count) delta = (newPosTruncated, newCount)
     where newPos = pos + delta
           wrapAt = 100
           newPosTruncated = newPos `mod` wrapAt
-          newCount = count + countZeros pos newPos wrapAt
+          newCount = count + countZeros pos delta wrapAt
 
 countZeros :: Int -> Int -> Int -> Int
-countZeros prev curr wrapAt
-    | (prev < 0 || prev >= wrapAt) = error "Position out of bounds"
-    | (prev == 0 && curr < 0) = abs(curr `div` wrapAt) - 1
-    | (curr == 0) = abs(curr `div` wrapAt) + 1
-    | (curr `mod` wrapAt) == 0 = abs(curr `div` wrapAt)
-    | otherwise = abs(curr `div` wrapAt)
+countZeros pos delta wrapAt = 
+    let range = tail [pos, pos + signum delta .. pos + delta]
+    in length [x | x <- range, x `mod` wrapAt == 0]

@@ -1,29 +1,26 @@
-import Data.List.Split (splitOn)
-import Data.List (zipWith4)
-
-parseInput :: String -> ([Integer], [Integer], [Integer], [(Integer -> Integer -> Integer)])
-parseInput input = (xs, ys, zs, ops)
+parseInput :: String -> ([[Integer]], [(Integer -> Integer -> Integer)])
+parseInput input = (numberRows, ops)
   where
     rows = map words $ lines input
-    [xs, ys, zs] = map (map read) (take 3 rows)
-    ops = map parseOp (rows !! 3)
+    numberRows = map (map read) (init rows)
+    ops = map parseOp (last rows)
 
 parseOp :: String -> (Integer -> Integer -> Integer)
 parseOp "+" = (+)
 parseOp "*" = (*)
-parseOp "-" = (-)
-parseOp "/" = div
 
-doCalc :: Integer -> Integer -> Integer -> (Integer -> Integer -> Integer) -> Integer
-doCalc x y z op = foldl1 op [x, y, z]
-
+doCalc :: [Integer] -> (Integer -> Integer -> Integer) -> Integer
+doCalc numbers op = foldl1 op numbers
 
 main :: IO ()
 main = do
     input <- getContents
-    let (xs, ys, zs, ops) = parseInput input
-    print xs
-    print ys
-    print zs
-    let sums = sum $ zipWith4 doCalc xs ys zs ops
-    print sums
+    let (numberRows, ops) = parseInput input
+    let transposed = transpose numberRows
+    let results = zipWith doCalc transposed ops
+    print (sum results)
+
+transpose :: [[a]] -> [[a]]
+transpose [] = []
+transpose ([]:_) = []
+transpose xs = map head xs : transpose (map tail xs)
